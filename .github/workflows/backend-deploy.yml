@@ -1,0 +1,32 @@
+name: Deploy Node.js Backend API to Azure
+
+on:
+  push:
+    branches:
+      - main
+
+      
+jobs:      
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Application Dependencies
+        run: npm ci
+
+      - name: Zip Files for Deployment
+        run: zip -r deploy.zip . -x "*.git*" ".github*" "deploy.zip"
+
+      - name: Ship Application Bundle to Azure
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'expense-tracker-api-Funso'
+          publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE }}
+          package: './deploy.zip'  
